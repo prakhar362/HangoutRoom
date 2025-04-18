@@ -1,17 +1,25 @@
-import { useState, useEffect } from "react";
+import { Route, Routes, BrowserRouter } from 'react-router-dom';
 import { io } from "socket.io-client";
 import "./App.css";
-import { Button } from "@/components/ui/button"
+import LandingPage from './Pages/Landing/LandingPage';
+import AuthPage from './Pages/Auth/AuthPage';
+import Homepage from './Pages/Dashboard/Homepage';
 
 function App() {
 
   return (
     <>
-        <h1 className="text-3xl font-bold text-amber-300 underline">
-    Hello world!
-  </h1>
-  <button className="px-4 py-2 text-sm font-medium rounded-b-sm bg-white text-black rounded transition-colors duration-300 hover:bg-black hover:text-white border border-amber-100"> 
-    Click me</button>
+    <div>
+    <BrowserRouter>
+    <Routes>
+    <Route exact path="/" element={<LandingPage />} />
+    <Route exact path="/auth" element={<AuthPage />} />
+    {/**Try to add auth or protected routes for home page onwards */}
+    <Route exact path="/home" element={<Homepage />} />
+
+    </Routes>
+    </BrowserRouter>
+    </div>
     </>
   );
 }
