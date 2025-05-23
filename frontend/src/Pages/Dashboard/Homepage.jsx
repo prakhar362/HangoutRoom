@@ -8,7 +8,7 @@ function Homepage({ children }) {
       <main className="ml-0 p-6 pt-20">
         {children}
       </main>
-      Conent
+      Content
     </div>
   )
 }

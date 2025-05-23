@@ -77,6 +77,14 @@ function Sidebar() {
                 <Settings className="h-5 w-5" />
                 Settings
               </Button>
+              <Button 
+                variant="ghost" 
+                className="w-full justify-start gap-2"
+                onClick={() => handleNavigation('/contactUs')}
+              >
+                <Settings className="h-5 w-5" />
+                Contact Form
+              </Button>
             </div>
           </nav>
 
