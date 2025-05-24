@@ -3,44 +3,47 @@ import { useAnimations, useGLTF } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import model from './man.glb'
+
 const Character = ({ playerId, players, socket, currentRoom }) => {
   const { scene, animations } = useGLTF(model);
   const characterRef = useRef();
   const { actions } = useAnimations(animations, characterRef);
-  // console.log(actions)
-  const size={
-    main:[0.2,0.2,0.2],
-    movieRoom:[0.006,0.006,0.006],
-    movieRoom2:[0.006,0.006,0.006],
+  
+  const size = {
+    main: [0.2, 0.2, 0.2],
+    movieRoom: [0.006, 0.006, 0.006],
+    movieRoom2: [0.006, 0.006, 0.006],
   }
-  useEffect(()=>{
-    if(characterRef.current){
 
-      characterRef.current.position.x=0;
-      characterRef.current.position.z=0;
+  useEffect(() => {
+    if (characterRef.current) {
+      characterRef.current.position.x = 0;
+      characterRef.current.position.z = 0;
     }
-  },[currentRoom])
+  }, [currentRoom])
+
   const [keys, setKeys] = useState({ w: false, a: false, s: false, d: false });
   const isLocalPlayer = playerId === socket.id;
   const speed = {
-    main:2,
-    movieRoom:0.15,
-    movieRoom2:0.15,
+    main: 2,
+    movieRoom: 0.15,
+    movieRoom2: 0.15,
   }
   const direction = new THREE.Vector3();
   const [isMoving, setIsMoving] = useState(false);
+  
   scene.traverse((child) => {
     if (child.isMesh) {
-      child.geometry.center(); 
+      child.geometry.center();
     }
   });
-  
-  const height={
-    movieRoom:1,
-    movieRoom2:1,
-    main:16.8*2
+
+  const height = {
+    movieRoom: 1,
+    movieRoom2: 1,
+    main: 16.8 * 2
   }
-  
+
   useEffect(() => {
     if (!isLocalPlayer) return;
 
@@ -72,34 +75,29 @@ const Character = ({ playerId, players, socket, currentRoom }) => {
   }, [keys.w, keys.s, actions, isLocalPlayer]);
 
   useFrame(({ camera }) => {
-    if (isLocalPlayer && characterRef.current ) {
+    if (isLocalPlayer && characterRef.current) {
       direction.set(0, 0, 0);
-  
 
-        if (keys.w) direction.z += speed[currentRoom];  
-        if (keys.s) direction.z -= speed[currentRoom];  
-        
-        
-        if (keys.a) characterRef.current.rotation.y += 0.05;  
-        if (keys.d) characterRef.current.rotation.y -= 0.05;  
-        
-        direction.applyQuaternion(characterRef.current.quaternion);
-        characterRef.current.position.add(direction);
-  
+      if (keys.w) direction.z += speed[currentRoom];
+      if (keys.s) direction.z -= speed[currentRoom];
+      if (keys.a) characterRef.current.rotation.y += 0.05;
+      if (keys.d) characterRef.current.rotation.y -= 0.05;
+
+      direction.applyQuaternion(characterRef.current.quaternion);
+      characterRef.current.position.add(direction);
 
       camera.position.set(
         characterRef.current.position.x,
-        characterRef.current.position.y + height[currentRoom], 
+        characterRef.current.position.y + height[currentRoom],
         characterRef.current.position.z
       );
-  
 
       camera.rotation.set(
-        0, 
-        characterRef.current.rotation.y+Math.PI, 
-        0  
+        0,
+        characterRef.current.rotation.y + Math.PI,
+        0
       );
-  
+
       socket.emit("move", {
         position: characterRef.current.position,
         rotation: characterRef.current.rotation,
@@ -107,9 +105,6 @@ const Character = ({ playerId, players, socket, currentRoom }) => {
       });
     }
   });
-  
-  
-  
 
   return (
     <mesh ref={characterRef} scale={[size[currentRoom]]}>
