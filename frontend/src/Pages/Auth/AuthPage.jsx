@@ -50,6 +50,7 @@ function AuthPage() {
 
       if (response.data.token) {
         localStorage.setItem('token', response.data.token)
+        //console.log('auth-token: ',response.data.token)
         
         // Initialize socket connection after successful login
         initializeSocket(response.data.token)
