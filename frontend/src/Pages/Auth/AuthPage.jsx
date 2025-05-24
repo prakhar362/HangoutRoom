@@ -20,6 +20,7 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs"
+import { initializeSocket } from '@/services/socketService'
 
 function AuthPage() {
   const navigate = useNavigate()
@@ -50,54 +51,14 @@ function AuthPage() {
       if (response.data.token) {
         localStorage.setItem('token', response.data.token)
         
-        const successMessage = activeTab === 'signup' ? 'Account created successfully! ✅' : 'Logged in successfully! ✅'
+        // Initialize socket connection after successful login
+        initializeSocket(response.data.token)
         
-        // Show toast notification
-        toast.success(successMessage, {
-          position: "top-right",
-          autoClose: 2000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "dark",
-        })
-        
-        // Navigate after a short delay
-        setTimeout(() => {
-          navigate("/home")
-        }, 2000)
-      }
-      else{
-        //signup message
-        const successMessage = activeTab === 'signup' ? 'Account created successfully! ✅' : 'Logged in successfully! ✅'
-        // Show toast notification
-        toast.success(successMessage, {
-          position: "top-right",
-          autoClose: 2000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "dark",
-        })
-        setActiveTab('login');
-
+        toast.success(activeTab === 'signup' ? 'Account created successfully!' : 'Logged in successfully!')
+        navigate('/home')
       }
     } catch (error) {
-      // Show error toast
-      toast.error(error.response?.data?.message || 'Something went wrong!', {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "dark",
-      })
+      toast.error(error.response?.data?.message || 'Something went wrong!')
     } finally {
       setLoading(false)
     }
