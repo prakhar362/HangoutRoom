@@ -1,4 +1,5 @@
 import React, { useState } from "react"
+import Sidebar from "@/components/Sidebar"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -39,6 +40,7 @@ function ContactForm() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-gray-50">
+       <Sidebar />
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle className="text-2xl text-center">Contact Us</CardTitle>

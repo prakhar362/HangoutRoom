@@ -8,7 +8,8 @@ import {
   Users,
   UserCircle,
   Settings,
-  LogOut
+  LogOut,
+  Contact
 } from "lucide-react"
 import { disconnectSocket } from '@/services/socketService'
 
@@ -83,9 +84,9 @@ function Sidebar() {
                 <Button 
                   variant="ghost" 
                   className="w-full justify-start gap-2"
-                  onClick={() => handleNavigation('/contactUs')}
+                  onClick={() => handleNavigation('/contact-us')}
                 >
-                  <Settings className="h-5 w-5" />
+                  <Contact className="h-5 w-5" />
                   Contact Form
                 </Button>
               </div>
