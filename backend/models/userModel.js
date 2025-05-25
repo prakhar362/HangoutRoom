@@ -14,14 +14,44 @@ const users = new Schema({
         type: String
     }],
     themeSettings: {
-        darkMode: {
-            type: Boolean,
-            default: false
+        homeTheme: {
+            type: String,
+            enum: ['light', 'dark', 'minimal'],
+            default: 'light'
+        },
+        characterTheme: {
+            type: String,
+            enum: ['classic', 'modern', 'cartoon'],
+            default: 'classic'
         },
         accentColor: {
             type: String,
             default: "#000000"
+        },
+        darkMode: {
+            type: Boolean,
+            default: false
         }
+    },
+    characterSettings: {
+        model: {
+            type: String,
+            default: "default-character.glb"
+        },
+        animations: {
+            type: [String],
+            default: ["idle", "walk", "run"]
+        },
+        customizations: {
+            type: Map,
+            of: Schema.Types.Mixed,
+            default: {}
+        }
+    },
+    language: {
+        type: String,
+        enum: ['en', 'es', 'fr', 'de', 'hi'],
+        default: 'en'
     },
     joinedGroups: [{
         type: mongoose.Schema.Types.ObjectId,

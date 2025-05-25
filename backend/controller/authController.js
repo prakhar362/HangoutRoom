@@ -160,9 +160,88 @@ async function logout(req, res) {
       });
 }
 
+async function updateSettings(req, res) {
+    try {
+        const userId = req.user.id;
+        const { email, password, themeSettings, characterSettings } = req.body;
+
+        // Validate user exists
+        const user = await userModel.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        // Prepare update object
+        const updateData = {};
+
+        // Update email if provided
+        if (email && email !== user.email) {
+            // Check if email is already taken
+            const existingUser = await userModel.findOne({ email });
+            if (existingUser) {
+                return res.status(400).json({ message: "Email already in use" });
+            }
+            updateData.email = email;
+        }
+
+        // Update password if provided
+        if (password) {
+            if (password.length < 6) {
+                return res.status(400).json({ message: "Password must be at least 6 characters long" });
+            }
+            updateData.password = await bcrypt.hash(password, 10);
+        }
+
+        // Update theme settings if provided
+        if (themeSettings) {
+            updateData.themeSettings = {
+                ...user.themeSettings,
+                ...themeSettings
+            };
+        }
+
+        // Update character settings if provided
+        if (characterSettings) {
+            updateData.characterSettings = {
+                ...user.characterSettings,
+                ...characterSettings
+            };
+        }
+
+        // If no updates provided
+        if (Object.keys(updateData).length === 0) {
+            return res.status(400).json({ message: "No updates provided" });
+        }
+
+        // Update user
+        const updatedUser = await userModel.findByIdAndUpdate(
+            userId,
+            { $set: updateData },
+            { new: true, select: '-password' }
+        );
+
+        res.status(200).json({
+            message: "Settings updated successfully",
+            user: {
+                email: updatedUser.email,
+                themeSettings: updatedUser.themeSettings,
+                characterSettings: updatedUser.characterSettings
+            }
+        });
+
+    } catch (err) {
+        console.error('Settings update error:', err);
+        res.status(500).json({
+            message: "Internal server error",
+            error: process.env.NODE_ENV === 'development' ? err.message : undefined
+        });
+    }
+}
+
 module.exports = {
     signup,
     login,
     logout,
-    profile
-  };
+    profile,
+    updateSettings
+};
