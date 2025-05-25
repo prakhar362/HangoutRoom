@@ -57,7 +57,7 @@ function Homepage({ children }) {
 
       {/* 3D Canvas - Full Screen */}
       <div className="w-full h-full">
-        <Canvas camera={{ position: [0, 5, 10], fov: 45 }}>
+        <Canvas camera={{ position: [10, 5, 10], fov: 45 }}>
           <ambientLight intensity={0.5} />
           <pointLight intensity={1} />
           <directionalLight position={[0, 10, 0]} intensity={1} />
@@ -90,29 +90,7 @@ function Homepage({ children }) {
             />
           )}
           <OrbitControls 
-            enableZoom={true}
-            enablePan={true}
-            enableRotate={true}
-            minDistance={5}
-            maxDistance={50}
             maxPolarAngle={Math.PI / 2}
-            minPolarAngle={0}
-            target={[0, 0, 0]}
-            makeDefault
-            enableDamping
-            dampingFactor={0.05}
-            rotateSpeed={0.5}
-            zoomSpeed={1}
-            panSpeed={1}
-            mouseButtons={{
-              LEFT: 1,
-              MIDDLE: 2,
-              RIGHT: 0
-            }}
-            touches={{
-              ONE: 1,
-              TWO: 2
-            }}
           />
         </Canvas>
       </div>
