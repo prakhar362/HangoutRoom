@@ -97,11 +97,6 @@ async function profile(req, res) {
         console.log('Looking up user with ID:', userId);
         
         const user = await userModel.findById(userId)
-            .populate({
-                path: 'joinedGroups',
-                select: 'groupName themeImage description',
-                options: { lean: true }
-            })
             .select('-password')
             .lean();
         
@@ -118,7 +113,7 @@ async function profile(req, res) {
             email: user.email
         });
 
-        // Prepare the response with default values and handle empty groups
+        // Prepare the response with default values
         const response = {
             message: "Profile details retrieved successfully",
             user: {
@@ -130,15 +125,10 @@ async function profile(req, res) {
                     darkMode: false,
                     accentColor: "#000000"
                 },
-                joinedGroups: user.joinedGroups || []
+                joinedGroups: [], // Initialize as empty array
+                groupsMessage: "Not part of any groups yet"
             }
         };
-
-        // If no groups, add a message
-        if (!user.joinedGroups || user.joinedGroups.length === 0) {
-            response.user.joinedGroups = [];
-            response.user.groupsMessage = "Not part of any groups yet";
-        }
 
         res.status(200).json(response);
     } catch (err) {
