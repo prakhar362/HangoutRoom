@@ -82,7 +82,75 @@ async function login(req, res) {
 
 }
 
- async function logout(req, res) {
+async function profile(req, res) {
+    try {
+        console.log('Profile request received for user:', req.user);
+        const userId = req.user.id;
+        
+        if (!userId) {
+            console.error('No user ID found in request');
+            return res.status(401).json({
+                message: "User ID not found in token"
+            });
+        }
+
+        console.log('Looking up user with ID:', userId);
+        
+        const user = await userModel.findById(userId)
+            .populate({
+                path: 'joinedGroups',
+                select: 'groupName themeImage description',
+                options: { lean: true }
+            })
+            .select('-password')
+            .lean();
+        
+        if (!user) {
+            console.error('User not found for ID:', userId);
+            return res.status(404).json({
+                message: "User not found"
+            });
+        }
+
+        console.log('User found:', {
+            id: user._id,
+            name: user.userName,
+            email: user.email
+        });
+
+        // Prepare the response with default values and handle empty groups
+        const response = {
+            message: "Profile details retrieved successfully",
+            user: {
+                name: user.userName,
+                email: user.email,
+                currentAvatar: user.currentAvatar || "default-avatar.png",
+                previousAvatars: user.previousAvatars || [],
+                themeSettings: user.themeSettings || {
+                    darkMode: false,
+                    accentColor: "#000000"
+                },
+                joinedGroups: user.joinedGroups || []
+            }
+        };
+
+        // If no groups, add a message
+        if (!user.joinedGroups || user.joinedGroups.length === 0) {
+            response.user.joinedGroups = [];
+            response.user.groupsMessage = "Not part of any groups yet";
+        }
+
+        res.status(200).json(response);
+    } catch (err) {
+        console.error('Profile error:', err);
+        res.status(500).json({
+            message: "Internal server error",
+            error: process.env.NODE_ENV === 'development' ? err.message : undefined
+        });
+    }
+}
+
+async function logout(req, res) {
     res.clearCookie("token", {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
@@ -95,5 +163,6 @@ async function login(req, res) {
 module.exports = {
     signup,
     login,
-    logout
+    logout,
+    profile
   };

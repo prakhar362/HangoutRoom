@@ -1,33 +1,102 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import Sidebar from '@/components/Sidebar';
-
-const mockUser = {
-  name: "Jane Doe",
-  email: "jane@example.com",
-  avatar: "https://static.wikitide.net/greatcharacterswiki/thumb/4/4b/Avatar_Generations_-_Aang_Season_3.png/267px-Avatar_Generations_-_Aang_Season_3.png",
-  previousAvatars: [
-    "/avatars/prev1.png",
-    "/avatars/prev2.png",
-    "/avatars/prev3.png"
-  ],
-  groups: [
-    { name: "React Devs", themeImg: "/rooms/react.png" },
-    { name: "Gamers", themeImg: "/rooms/gamers.png" },
-    { name: "Book Club", themeImg: "/rooms/bookclub.png" }
-  ]
-};
+import axios from 'axios';
 
 export default function Profile() {
-  const [user, setUser] = useState(mockUser);
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [newAvatar, setNewAvatar] = useState(null);
   const fileInputRef = useRef();
 
-  const handleAvatarChange = (e) => {
+  useEffect(() => {
+    fetchProfile();
+  }, []);
+
+  const fetchProfile = async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem('token');
+      
+      if (!token) {
+        setError('No authentication token found. Please login again.');
+        setLoading(false);
+        return;
+      }
+
+      console.log('Fetching profile with token:', token); // Debug log
+      
+      const response = await axios.get('http://localhost:3000/api/v1/user/profile', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      console.log('Profile response:', response.data); // Debug log
+      
+      if (response.data.user) {
+        setUser(response.data.user);
+        setError(null);
+      } else {
+        setError('No user data received');
+      }
+    } catch (err) {
+      console.error('Full error object:', err);
+      console.error('Error response:', err.response);
+      console.error('Error message:', err.message);
+      
+      if (err.response) {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+        setError(`Error ${err.response.status}: ${err.response.data?.message || 'Server error'}`);
+      } else if (err.request) {
+        // The request was made but no response was received
+        setError('No response from server. Please check your connection.');
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        setError(`Error: ${err.message}`);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAvatarChange = async (e) => {
     const file = e.target.files[0];
     if (file) {
       setNewAvatar(URL.createObjectURL(file));
+      // TODO: Implement avatar upload to backend
     }
   };
+
+  if (loading) {
+    return (
+      <div className="fixed inset-0 bg-black text-black flex">
+        <aside className="relative z-50 h-full w-20 md:w-56 bg-black border-r border-gray-200 flex flex-col items-center py-8 shadow-xl">
+          <Sidebar />
+        </aside>
+        <main className="flex-1 flex items-center justify-center">
+          <div className="text-xl">Loading profile...</div>
+        </main>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="fixed inset-0 bg-black text-black flex">
+        <aside className="relative z-50 h-full w-20 md:w-56 bg-black border-r border-gray-200 flex flex-col items-center py-8 shadow-xl">
+          <Sidebar />
+        </aside>
+        <main className="flex-1 flex items-center justify-center">
+          <div className="text-red-500 text-xl">{error}</div>
+        </main>
+      </div>
+    );
+  }
+
+  if (!user) return null;
 
   return (
     <div className="fixed inset-0 bg-black text-black flex">
@@ -44,7 +113,7 @@ export default function Profile() {
             <div className="flex flex-col items-center min-w-[180px]">
               <div className="relative group">
                 <img
-                  src={newAvatar || user.avatar}
+                  src={newAvatar || user.currentAvatar}
                   alt="Avatar"
                   className="w-36 h-36 rounded-full border-4 border-black object-cover shadow-xl bg-[#f3f4f6] group-hover:scale-105 transition-transform duration-300"
                 />
@@ -79,17 +148,15 @@ export default function Profile() {
               <div>
                 <h2 className="text-xl font-semibold mb-3 text-black">Joined Groups</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-                  {user.groups.map((group) => (
+                  {user.joinedGroups.map((group) => (
                     <div
-                      key={group.name}
+                      key={group._id}
                       className="flex flex-col items-center bg-[#f3f4f6] border border-gray-200 rounded-2xl p-4 shadow hover:shadow-xl transition duration-200 group cursor-pointer hover:border-black"
                     >
-                      <img
-                        src={group.themeImg}
-                        alt={`${group.name} theme`}
-                        className="w-16 h-16 rounded-lg object-cover border border-gray-300 mb-2 bg-white"
-                      />
-                      <span className="text-black font-semibold text-base text-center truncate w-full" title={group.name}>{group.name}</span>
+                      <div className="w-16 h-16 rounded-lg border border-gray-300 mb-2 bg-white flex items-center justify-center">
+                        <span className="text-2xl">👥</span>
+                      </div>
+                      <span className="text-black font-semibold text-base text-center truncate w-full" title={group.groupName}>{group.groupName}</span>
                     </div>
                   ))}
                 </div>

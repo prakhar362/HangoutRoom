@@ -13,7 +13,12 @@ const app = express();
 const server = http.createServer(app);
 
 // Middleware to parse JSON requests
-app.use(cors());
+app.use(cors({
+    origin: 'http://localhost:5173', // Your frontend URL
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(express.json());
 
 // Routes
