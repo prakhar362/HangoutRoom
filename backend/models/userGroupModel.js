@@ -22,6 +22,12 @@ const userGroupSchema = new Schema({
     themeImage: {
         type: String,
         default: "default-group-theme.png"
+    },
+    joinCode: {
+        type: String,
+        required: true,
+        unique: true,
+        length: 4
     }
 });
 

@@ -22,6 +22,7 @@ function App() {
     <Route exact path="/home" element={<Homepage />} />
     <Route exact path="/contact-us" element={<ContactForm />} />
     <Route exact path="/rooms" element={<Room />} />
+    <Route exact path="/room/:roomName" element={<Room />} />
     <Route exact path="/profile" element={<Profile/>} />
     <Route exact path="/settings" element={<Settings />} />
     </Routes>

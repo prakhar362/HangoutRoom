@@ -1,17 +1,26 @@
-import React from 'react'
-import Sidebar from '@/components/Sidebar'
-function Room({children}) {
+import React from 'react';
+import { useParams } from 'react-router-dom';
+import Sidebar from '@/components/Sidebar';
+import RoomManager from '@/components/RoomManager';
+
+function Room() {
+  const { roomName } = useParams();
+
   return (
-    <>
     <div className="min-h-screen bg-white">
       <Sidebar />
       <main className="ml-0 p-6 pt-20">
-        {children}
+        {!roomName ? (
+          <RoomManager />
+        ) : (
+          <div>
+            {/* Room content will be implemented here */}
+            <h1>Room: {roomName}</h1>
+          </div>
+        )}
       </main>
-      Create/Join room page
     </div>
-    </>
-  )
+  );
 }
 
-export default Room
+export default Room;
