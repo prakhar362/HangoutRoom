@@ -1,5 +1,5 @@
 // events/socketEvents.js
-const { handlePlayerJoin, handlePlayerMove, handleChangeRoom, handleSendMessage, handleDisconnect } = require('../controller/socketController');
+const { handlePlayerJoin, handlePlayerMove, handleChangeRoom, handleSendMessage, handleDisconnect, handleLeaveRoom } = require('../controller/socketController');
 
 const setupSocketEvents = (socket, io) => {
   socket.on("join-room", ({ peerId, group, room }) => {
@@ -17,6 +17,10 @@ const setupSocketEvents = (socket, io) => {
 
   socket.on("sendMessage", ({ message }) => {
     handleSendMessage(socket, message);
+  });
+
+  socket.on("leave-room", ({ roomName }) => {
+    handleLeaveRoom(socket, roomName);
   });
 
   socket.on("disconnect", () => {
